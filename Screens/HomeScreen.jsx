@@ -1,11 +1,22 @@
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Alert, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import * as Location from 'expo-location'
-import MapView, { Marker } from 'react-native-maps'
+import MapView, { Callout, Marker } from 'react-native-maps'
+import * as ImagePicker from 'expo-image-picker';
+
+
 const HomeScreen = () => {
 
     const [location, setLocation] = useState(null)
+    const [image, setImages] = useState(null)
+    const [photoMarkers, setPhotoMarkers] = useState([])
 
+
+
+    useEffect(() => {
+        console.log(photoMarkers, 'hhhh');
+
+    }, [photoMarkers])
     console.log(location);
 
     useEffect(() => {
@@ -24,6 +35,76 @@ const HomeScreen = () => {
         geoLocation()
     }, [])
 
+    const handleTakePhoto = async () => {
+        console.log('take photo func start');
+
+        try {
+            let { status } = await ImagePicker.requestCameraPermissionsAsync()
+            console.log(status)
+            console.log('btn pressed');
+
+            if (status !== 'granted') {
+                Alert.alert('permission required ')
+                return;
+            }
+            let result = await ImagePicker.launchCameraAsync({
+                mediaTypes: ['images'],
+                // allowsEditing: true,
+                quality: 1
+            })
+
+            if (!result.canceled) {
+                setImages(result.assets[0].uri)
+                const newPhotoMarker = {
+                    id: Date.now(),
+                    coordinate: {
+                        latitude: location.coords.latitude,
+                        longitude: location.coords.longitude
+                    },
+                    imageUri: result.assets[0].uri,
+                    timestamp: new Date().toISOString()
+                };
+
+                setPhotoMarkers(prevMarkers => [...prevMarkers, newPhotoMarker]);
+            }
+
+
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const handlePickImage = async () => {
+
+        try {
+            let result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ['images'],
+                allowsEditing: true,
+                quality: 1
+            });
+
+            if (!result.canceled && result.assets && result.assets.length > 0) {
+                setImages(result.assets[0].uri);
+
+                const newPhotoMarker = {
+                    id: Date.now(),
+                    coordinate: {
+                        latitude: location.coords.latitude,
+                        longitude: location.coords.longitude
+                    },
+                    imageUri: result.assets[0].uri,
+                    timestamp: new Date().toISOString()
+                };
+
+                setPhotoMarkers(prevMarkers => [...prevMarkers, newPhotoMarker]);
+            }
+        } catch (error) {
+            console.log('Error picking image:', error);
+        }
+    }
+
+    console.log(photoMarkers);
 
     return (
         <View style={styles.container}>
@@ -56,13 +137,33 @@ const HomeScreen = () => {
                         />
                     )
                 }
+                {photoMarkers.map(marker => (
+                    <Marker
+                        key={marker.id}
+                        coordinate={marker.coordinate}
+                        title={`Photo taken at ${new Date(marker.timestamp).toLocaleTimeString()}`}
+                    >
+                       
+                        <Callout tooltip={true} style={styles.callout}>
+                            <View style={styles.popupContainer}>
+                                <Image
+                                    source={{ uri: marker.imageUri }}
+                                    style={styles.popupImage}
+                                />
+                                <Text style={styles.timestamp}>
+                                    {new Date(marker.timestamp).toLocaleString()}
+                                </Text>
+                            </View>
+                        </Callout>
+                    </Marker>
+                ))}
 
             </MapView>
             <View style={styles.btnContainer}>
-                <TouchableOpacity style={styles.btn}>
+                <TouchableOpacity style={styles.btn} onPress={handlePickImage}>
                     <Text>Choose from gallery</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.btn2}>
+                <TouchableOpacity style={styles.btn2} onPress={handleTakePhoto}>
                     <Text>Take photo</Text>
                 </TouchableOpacity>
             </View>
@@ -74,43 +175,72 @@ export default HomeScreen
 
 const styles = StyleSheet.create({
     container: {
-        // paddingTop: '10%',
         marginTop: '10%',
-        // paddingHorizontal: '4%',
         flex: 1,
-        // backgroundColor: 'red'
     },
     map: {
         width: '100%',
-        height:'100%',
-
+        height: '100%',
     },
     btnContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         position: 'absolute',
-        bottom: 40,
-        right: 60,
-        left: 60
-        
+        bottom: 50,
+        right: 20,  // Reduced from 60 for better spacing
+        left: 20,   // Reduced from 60 for better spacing
     },
     btn: {
         paddingHorizontal: 20,
         paddingVertical: 15,
-        backgroundColor: '#C7C7CC',
-        color: 'gray',
-        borderTopLeftRadius:10,
-        borderBottomLeftRadius:10,
+        backgroundColor: '#ffffff',
+        borderTopLeftRadius: 10,
+        borderBottomLeftRadius: 10,
         borderRightColor: '#8E8E93',
-        borderRightWidth:1
+        borderRightWidth: 1,
+        shadowColor: '#000',  // Added shadow for better visibility
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3, // For Android
     },
     btn2: {
         paddingHorizontal: 20,
         paddingVertical: 15,
-        backgroundColor: '#C7C7CC',
-        color: 'gray',
+        backgroundColor: '#ffffff',
         borderTopEndRadius: 10,
-        borderEndEndRadius:10
+        borderEndEndRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3, // For Android
+    },
+    // Add button text styles
+    btnText: {
+        color: '#8E8E93',
+        fontWeight: '500',
+    },
+    popupContainer: {
+        padding: 10,
+        alignItems: 'center',
+        backgroundColor: 'white',
+        borderRadius: 10,
+        maxWidth: 220,
+    },
+    popupImage: {
+        width: 200,
+        height: 200,
+        borderRadius: 10,
+    },
+    timestamp: {
+        marginTop: 8,
+        fontSize: 12,
+        color: '#666',
+        textAlign: 'center',
+    },
+    callout: {
+        borderRadius: 10, // Match the popup container
     }
-})
+});
