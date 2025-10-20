@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import * as Location from 'expo-location'
 import MapView, { Callout, Marker } from 'react-native-maps'
 import * as ImagePicker from 'expo-image-picker';
+import { Entypo, Ionicons } from '@expo/vector-icons';
 
 
 const HomeScreen = () => {
@@ -143,7 +144,7 @@ const HomeScreen = () => {
                         coordinate={marker.coordinate}
                         title={`Photo taken at ${new Date(marker.timestamp).toLocaleTimeString()}`}
                     >
-                       
+
                         <Callout tooltip={true} style={styles.callout}>
                             <View style={styles.popupContainer}>
                                 <Image
@@ -161,9 +162,11 @@ const HomeScreen = () => {
             </MapView>
             <View style={styles.btnContainer}>
                 <TouchableOpacity style={styles.btn} onPress={handlePickImage}>
+                    <Ionicons name='camera' size={24} color='black' />
                     <Text>Choose from gallery</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.btn2} onPress={handleTakePhoto}>
+                    <Entypo name='image' size={24} color='black' />
                     <Text>Take photo</Text>
                 </TouchableOpacity>
             </View>
@@ -188,8 +191,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         position: 'absolute',
         bottom: 50,
-        right: 20,  // Reduced from 60 for better spacing
-        left: 20,   // Reduced from 60 for better spacing
+        right: 20,
+        left: 20,
     },
     btn: {
         paddingHorizontal: 20,
@@ -199,11 +202,14 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 10,
         borderRightColor: '#8E8E93',
         borderRightWidth: 1,
-        shadowColor: '#000',  // Added shadow for better visibility
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
-        elevation: 3, // For Android
+        elevation: 3,
+        flexDirection: 'row',
+        gap: 10,
+        alignItems:'center'
     },
     btn2: {
         paddingHorizontal: 20,
@@ -215,7 +221,10 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
-        elevation: 3, // For Android
+        elevation: 3, 
+        flexDirection:"row",
+        gap:10,
+        alignItems: 'center'
     },
     // Add button text styles
     btnText: {
