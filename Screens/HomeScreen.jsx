@@ -107,6 +107,9 @@ const HomeScreen = () => {
 
     console.log(photoMarkers);
 
+    // console.log('image location', photoMarkers);
+
+
     return (
         <View style={styles.container}>
             <MapView
@@ -126,7 +129,8 @@ const HomeScreen = () => {
                 }
                 showsUserLocation={true}
                 showsMyLocationButton={true}
-            >{
+            >
+                {/* {
                     location && (
                         <Marker
                             coordinate={{
@@ -137,27 +141,90 @@ const HomeScreen = () => {
                             description='you are here'
                         />
                     )
-                }
-                {photoMarkers.map(marker => (
+                } */}
+                {/* {photoMarkers.map(marker => (
                     <Marker
                         key={marker.id}
                         coordinate={marker.coordinate}
-                        title={`Photo taken at ${new Date(marker.timestamp).toLocaleTimeString()}`}
+                        title="Photo Location"
+                        description="Tap to view photo"
+                        onPress={() => console.log('📌 Marker pressed:', marker.id)}
                     >
+                    
+                    </Marker>
+                ))} */}
+                {photoMarkers.map((marker) => (
+                    <Marker
+                        key={marker.id}
+                        coordinate={marker.coordinate}
+                        tracksViewChanges={false}
+                        onPress={() => console.log("📍 Marker pressed", marker.id)}
+                    >
+                        {/* Wrap callout content in an outer View + add minWidth */}
+                        <Callout tooltip>
+                            <View
+                                style={{
+                                    backgroundColor: "transparent",
+                                    alignItems: "center",
+                                }}
+                            >
+                                <View
+                                    style={{
+                                        backgroundColor: "white",
+                                        borderRadius: 12,
+                                        padding: 8,
+                                        width: 230,
+                                        alignItems: "center",
+                                        shadowColor: "#000",
+                                        shadowOffset: { width: 0, height: 3 },
+                                        shadowOpacity: 0.3,
+                                        shadowRadius: 5,
+                                        elevation: 5,
+                                    }}
+                                >
+                                    <Image
+                                        source={{ uri: marker.imageUri }}
+                                        style={{
+                                            width: 210,
+                                            height: 160,
+                                            borderRadius: 8,
+                                            resizeMode: "cover",
+                                        }}
+                                    />
+                                    <Text
+                                        style={{
+                                            marginTop: 6,
+                                            fontSize: 12,
+                                            color: "#333",
+                                            textAlign: "center",
+                                            flexWrap: "wrap",
+                                        }}
+                                    >
+                                        {new Date(marker.timestamp).toLocaleString()}
+                                    </Text>
+                                </View>
 
-                        <Callout tooltip={true} style={styles.callout}>
-                            <View style={styles.popupContainer}>
-                                <Image
-                                    source={{ uri: marker.imageUri }}
-                                    style={styles.popupImage}
+                                {/* little tooltip triangle */}
+                                <View
+                                    style={{
+                                        width: 0,
+                                        height: 0,
+                                        borderLeftWidth: 10,
+                                        borderRightWidth: 10,
+                                        borderTopWidth: 12,
+                                        borderLeftColor: "transparent",
+                                        borderRightColor: "transparent",
+                                        borderTopColor: "white",
+                                        marginTop: -1,
+                                    }}
                                 />
-                                <Text style={styles.timestamp}>
-                                    {new Date(marker.timestamp).toLocaleString()}
-                                </Text>
                             </View>
                         </Callout>
                     </Marker>
                 ))}
+
+
+
 
             </MapView>
             <View style={styles.btnContainer}>
@@ -186,6 +253,7 @@ const styles = StyleSheet.create({
         height: '100%',
     },
     btnContainer: {
+        pointerEvents: 'box-none',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
@@ -194,6 +262,7 @@ const styles = StyleSheet.create({
         right: 20,
         left: 20,
     },
+
     btn: {
         paddingHorizontal: 20,
         paddingVertical: 15,
@@ -209,7 +278,7 @@ const styles = StyleSheet.create({
         elevation: 3,
         flexDirection: 'row',
         gap: 10,
-        alignItems:'center'
+        alignItems: 'center'
     },
     btn2: {
         paddingHorizontal: 20,
@@ -221,9 +290,9 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
-        elevation: 3, 
-        flexDirection:"row",
-        gap:10,
+        elevation: 3,
+        flexDirection: "row",
+        gap: 10,
         alignItems: 'center'
     },
     // Add button text styles
@@ -250,6 +319,27 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     callout: {
-        borderRadius: 10, // Match the popup container
-    }
+        borderRadius: 10,
+    },
+    calloutContainer: {
+        width: 200,
+        padding: 8,
+        alignItems: "center",
+        backgroundColor: "white",
+        borderRadius: 10,
+        borderColor: "#ddd",
+        borderWidth: 1,
+    },
+    calloutImage: {
+        width: 180,
+        height: 120,
+        borderRadius: 8,
+    },
+    calloutText: {
+        marginTop: 5,
+        fontSize: 12,
+        color: "#333",
+        textAlign: "center",
+    },
+
 });
